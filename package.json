@@ -1,6 +1,6 @@
 {
   "name": "zanora-movies-desktop",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Desktop wrapper for Zanora Movies",
   "main": "main.js",
   "scripts": {
@@ -29,7 +29,9 @@
       "package.json"
     ],
     "publish": {
-      "provider": "github"
+      "provider": "github",
+      "owner": "kiwuna",
+      "repo": "zanora-app"
     },
     "win": {
       "target": [

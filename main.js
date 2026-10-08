@@ -204,12 +204,18 @@ function createWindow() {
     mainWindow.close();
   });
 
-  // Auto updater setup
-  autoUpdater.setFeedURL({
-    provider: 'github',
-    owner: 'kiwuna',
-    repo: 'zanora-app'
+  // Update handlers
+  ipcMain.on('check-for-updates', () => {
+    autoUpdater.checkForUpdates();
   });
+
+  ipcMain.on('install-update', () => {
+    autoUpdater.quitAndInstall();
+  });
+
+  // Auto updater setup
+  // The feed URL is automatically configured from package.json
+  // No need to use setFeedURL - it's deprecated
 
   // Auto updater events
   autoUpdater.on('checking-for-update', () => {
@@ -218,6 +224,8 @@ function createWindow() {
 
   autoUpdater.on('update-available', (info) => {
     console.log('Update available:', info);
+    // Notify user that an update is available
+    mainWindow.webContents.send('update-available', info);
   });
 
   autoUpdater.on('update-not-available', (info) => {
@@ -233,20 +241,22 @@ function createWindow() {
     log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
     log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
     console.log(log_message);
+    // Send progress to renderer
+    mainWindow.webContents.send('download-progress', progressObj);
   });
 
   autoUpdater.on('update-downloaded', (info) => {
     console.log('Update downloaded:', info);
-    // Prompt user to install update
-    autoUpdater.quitAndInstall();
+    // Notify user that update is ready to install
+    mainWindow.webContents.send('update-downloaded', info);
   });
-
-  // Check for updates when app starts
-  autoUpdater.checkForUpdatesAndNotify();
 }
 
 app.whenReady().then(() => {
   createWindow();
+
+  // Check for updates when app starts
+  autoUpdater.checkForUpdates();
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
