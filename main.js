@@ -17,9 +17,6 @@ function createWindow() {
     }
   });
 
-  // Make window draggable
-  mainWindow.setWindowButtonPosition({ x: 0, y: 0 });
-
   mainWindow.loadURL('https://zanora-movies.vercel.app/index.html');
 
   // Inject custom CSS and window controls
@@ -119,6 +116,34 @@ function createWindow() {
           <button class="window-btn close">✕</button>
         \`;
         document.body.appendChild(controls);
+
+        // Prevent text selection on navigation elements
+        function preventSelection(element) {
+          if (element) {
+            element.style.webkitUserSelect = 'none';
+            element.style.userSelect = 'none';
+          }
+        }
+
+        // Apply to navigation elements when they exist
+        const navSelectors = ['nav', 'header', '.navbar', '.navigation', '[role="navigation"]'];
+        navSelectors.forEach(selector => {
+          const elements = document.querySelectorAll(selector);
+          elements.forEach(el => preventSelection(el));
+        });
+
+        // Also prevent selection on buttons and links
+        document.querySelectorAll('button, a').forEach(el => preventSelection(el));
+
+        // Watch for dynamically added elements
+        const observer = new MutationObserver(() => {
+          navSelectors.forEach(selector => {
+            const elements = document.querySelectorAll(selector);
+            elements.forEach(el => preventSelection(el));
+          });
+          document.querySelectorAll('button, a').forEach(el => preventSelection(el));
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
 
         // Auto-hide functionality
         let hideTimeout;
