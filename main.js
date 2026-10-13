@@ -138,6 +138,11 @@ function createWindow() {
         const controls = document.createElement('div');
         controls.id = 'window-controls';
         controls.innerHTML = \`
+          <button class="window-btn update" title="Check for updates">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24px" height="24px">
+              <path fill="#cccccc" d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
+            </svg>
+          </button>
           <button class="window-btn minimize">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" width="50px" height="50px">
               <path fill="#cccccc" d="M41,4H9C6.24,4,4,6.24,4,9v32c0,2.76,2.24,5,5,5h32c2.76,0,5-2.24,5-5V9C46,6.24,43.76,4,41,4z M37,36c0,0.55-0.45,1-1,1H14 c-0.55,0-1-0.45-1-1v-2c0-0.55,0.45-1,1-1h22c0.55,0,1,0.45,1,1V36z"/>
@@ -214,6 +219,10 @@ function createWindow() {
 
         document.querySelector('.maximize').addEventListener('click', () => {
           window.electronAPI.maximize();
+        });
+
+        document.querySelector('.update').addEventListener('click', () => {
+          window.electronAPI.checkForUpdates();
         });
 
         document.querySelector('.close').addEventListener('click', () => {
@@ -320,9 +329,12 @@ function createWindow() {
     // Show error notification
     new Notification({
       title: 'Update Error',
-      body: 'Failed to check for updates. Please try again later.',
+      body: `Failed to check for updates: ${err.message || err}`,
       icon: path.join(__dirname, 'zanora-logo-app.png')
     }).show();
+
+    // Send error to renderer
+    mainWindow.webContents.send('update-error', err);
   });
 
   autoUpdater.on('download-progress', (progressObj) => {

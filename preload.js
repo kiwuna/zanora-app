@@ -10,6 +10,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onUpdateAvailable: (callback) => ipcRenderer.on('update-available', callback),
   onUpdateDownloaded: (callback) => ipcRenderer.on('update-downloaded', callback),
   onDownloadProgress: (callback) => ipcRenderer.on('download-progress', callback),
+  onUpdateError: (callback) => ipcRenderer.on('update-error', callback),
   // Expose Picture-in-Picture support
   supportsPiP: () => {
     return document.pictureInPictureEnabled || false;
