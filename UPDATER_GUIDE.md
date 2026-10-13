@@ -48,8 +48,8 @@ npm run build
 
 This will create:
 - `dist/Zanora Movies Setup 1.0.2.exe` (NSIS installer)
-- `dist/Zanora Movies-1.0.2.yml` (Update manifest)
-- `dist/Zanora Movies-1.0.2-win.blockmap` (Block map for delta updates)
+- `dist/latest.yml` (Update manifest)
+- `dist/Zanora Movies Setup 1.0.2.exe.blockmap` (Block map for delta updates)
 
 ### Step 3: Create a GitHub Release
 
@@ -60,8 +60,8 @@ This will create:
 5. Description: Add release notes (what's new, bug fixes, etc.)
 6. **Important**: Upload the following files from the `dist` folder:
    - `Zanora Movies Setup 1.0.2.exe`
-   - `Zanora Movies-1.0.2.yml`
-   - `Zanora Movies-1.0.2-win.blockmap`
+   - `latest.yml`
+   - `Zanora Movies Setup 1.0.2.exe.blockmap`
 7. Click "Publish release"
 
 ### Step 4: Users Get the Update

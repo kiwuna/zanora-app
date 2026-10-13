@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, session } = require('electron');
+const { app, BrowserWindow, ipcMain, session, Notification } = require('electron');
 const path = require('path');
 const { autoUpdater } = require('electron-updater');
 
@@ -294,7 +294,15 @@ function createWindow() {
 
   autoUpdater.on('update-available', (info) => {
     console.log('Update available:', info);
-    // Notify user that an update is available
+
+    // Show notification to user
+    new Notification({
+      title: 'Update Available',
+      body: `A new version (${info.version}) is available. Downloading now...`,
+      icon: path.join(__dirname, 'zanora-logo-app.png')
+    }).show();
+
+    // Also send to renderer
     mainWindow.webContents.send('update-available', info);
   });
 
@@ -304,6 +312,13 @@ function createWindow() {
 
   autoUpdater.on('error', (err) => {
     console.log('Error in auto-updater:', err);
+
+    // Show error notification
+    new Notification({
+      title: 'Update Error',
+      body: 'Failed to check for updates. Please try again later.',
+      icon: path.join(__dirname, 'zanora-logo-app.png')
+    }).show();
   });
 
   autoUpdater.on('download-progress', (progressObj) => {
@@ -317,8 +332,21 @@ function createWindow() {
 
   autoUpdater.on('update-downloaded', (info) => {
     console.log('Update downloaded:', info);
+
+    // Show notification with install button option
+    new Notification({
+      title: 'Update Ready',
+      body: 'A new version has been downloaded. Restart to install.',
+      icon: path.join(__dirname, 'zanora-logo-app.png')
+    }).show();
+
     // Notify user that update is ready to install
     mainWindow.webContents.send('update-downloaded', info);
+
+    // Auto-install and restart after 10 seconds
+    setTimeout(() => {
+      autoUpdater.quitAndInstall();
+    }, 10000);
   });
 }
 
