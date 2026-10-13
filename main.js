@@ -74,13 +74,17 @@ function createWindow() {
         height: 30px;
         border: none;
         background: transparent;
-        color: #fff;
-        font-size: 14px;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
         transition: background 0.2s;
+        padding: 0;
+      }
+
+      .window-btn svg {
+        width: 16px;
+        height: 16px;
       }
 
       .window-btn:hover {
@@ -111,9 +115,21 @@ function createWindow() {
         const controls = document.createElement('div');
         controls.id = 'window-controls';
         controls.innerHTML = \`
-          <button class="window-btn minimize">─</button>
-          <button class="window-btn maximize">□</button>
-          <button class="window-btn close">✕</button>
+          <button class="window-btn minimize">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" width="50px" height="50px">
+              <path fill="#cccccc" d="M41,4H9C6.24,4,4,6.24,4,9v32c0,2.76,2.24,5,5,5h32c2.76,0,5-2.24,5-5V9C46,6.24,43.76,4,41,4z M37,36c0,0.55-0.45,1-1,1H14 c-0.55,0-1-0.45-1-1v-2c0-0.55,0.45-1,1-1h22c0.55,0,1,0.45,1,1V36z"/>
+            </svg>
+          </button>
+          <button class="window-btn maximize">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48px" height="48px">
+              <path fill="#cccccc" d="M36.5,42h-25C8.467,42,6,39.532,6,36.5v-25C6,8.468,8.467,6,11.5,6h25c3.033,0,5.5,2.468,5.5,5.5v25	C42,39.532,39.533,42,36.5,42z"/>
+            </svg>
+          </button>
+          <button class="window-btn close">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" width="50px" height="50px">
+              <path fill="#cccccc" d="M41,4H9C6.24,4,4,6.24,4,9v32c0,2.76,2.24,5,5,5h32c2.76,0,5-2.24,5-5V9C46,6.24,43.76,4,41,4z M34.71,33.29l-1.42,1.42 L25,26.42l-8.29,8.29l-1.42-1.42L23.58,25l-8.29-8.29l1.42-1.42L25,23.58l8.29-8.29l1.42,1.42L26.42,25L34.71,33.29z"/>
+            </svg>
+          </button>
         \`;
         document.body.appendChild(controls);
 
