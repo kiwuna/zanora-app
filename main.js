@@ -284,8 +284,12 @@ function createWindow() {
   });
 
   // Auto updater setup
-  // The feed URL is automatically configured from package.json
-  // No need to use setFeedURL - it's deprecated
+  // Set the feed URL explicitly to GitHub
+  autoUpdater.setFeedURL({
+    provider: 'github',
+    owner: 'kiwuna',
+    repo: 'zanora-app'
+  });
 
   // Auto updater events
   autoUpdater.on('checking-for-update', () => {
@@ -353,8 +357,13 @@ function createWindow() {
 app.whenReady().then(() => {
   createWindow();
 
-  // Check for updates when app starts
-  autoUpdater.checkForUpdates();
+  // Check for updates when app starts (with delay to ensure window is ready)
+  setTimeout(() => {
+    console.log('Starting update check...');
+    autoUpdater.checkForUpdates().catch(err => {
+      console.error('Update check failed:', err);
+    });
+  }, 5000);
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
