@@ -1,11 +1,24 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, session } = require('electron');
 const path = require('path');
 const { autoUpdater } = require('electron-updater');
 
+// Enable Picture-in-Picture command line switches
+app.commandLine.appendSwitch('enable-pip');
+app.commandLine.appendSwitch('enable-features', 'PictureInPicture');
+
 function createWindow() {
+  // Enable Picture-in-Picture in the default session
+  const defaultSession = session.defaultSession;
+  defaultSession.setPermissionRequestHandler((webContents, permission, callback) => {
+    if (permission === 'fullscreen' || permission === 'picture-in-picture') {
+      callback(true);
+    } else {
+      callback(false);
+    }
+  });
   const mainWindow = new BrowserWindow({
-    width: 1280,
-    height: 800,
+    width: 1000,
+    height: 600,
     frame: false,
     autoHideMenuBar: true,
     backgroundColor: '#0a0a0a',
@@ -13,11 +26,21 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      preload: path.join(__dirname, 'preload.js')
+      preload: path.join(__dirname, 'preload.js'),
+      plugins: true,
+      experimentalFeatures: true,
+      sandbox: false
     }
   });
 
-  mainWindow.loadURL('https://zanora-movies.vercel.app/index.html');
+  mainWindow.loadFile('loading.html');
+
+  // Handle Picture-in-Picture events
+  mainWindow.on('app-command', (e, cmd) => {
+    if (cmd === 'media-play-pause') {
+      // Handle media play/pause if needed
+    }
+  });
 
   // Inject custom CSS and window controls
   mainWindow.webContents.on('did-finish-load', () => {
@@ -61,7 +84,7 @@ function createWindow() {
         background: #0a0a0a;
         padding: 10px;
         opacity: 1;
-        transition: opacity 0.3s ease;
+        transition: opacity 0.2s ease;
         -webkit-app-region: no-drag;
       }
 
@@ -168,24 +191,21 @@ function createWindow() {
         function showControls() {
           controlsEl.classList.remove('hidden');
           clearTimeout(hideTimeout);
-          hideTimeout = setTimeout(() => {
-            controlsEl.classList.add('hidden');
-          }, 5000);
         }
 
         function hideControls() {
           clearTimeout(hideTimeout);
           hideTimeout = setTimeout(() => {
             controlsEl.classList.add('hidden');
-          }, 5000);
+          }, 500);
         }
 
         // Show on hover
         controlsEl.addEventListener('mouseenter', showControls);
         controlsEl.addEventListener('mouseleave', hideControls);
 
-        // Initial hide after 5 seconds
-        showControls();
+        // Start hidden - only show on hover
+        controlsEl.classList.add('hidden');
 
         // Add event listeners
         document.querySelector('.minimize').addEventListener('click', () => {
@@ -218,6 +238,40 @@ function createWindow() {
 
   ipcMain.on('window-close', () => {
     mainWindow.close();
+  });
+
+  // Handle loading complete - load the actual app
+  ipcMain.on('loading-complete', () => {
+    mainWindow.loadURL('https://zanora-movies.vercel.app/index.html');
+
+    // Enable PiP after loading the URL
+    mainWindow.webContents.on('did-finish-load', () => {
+      mainWindow.webContents.executeJavaScript(`
+        // Enable Picture-in-Picture for all videos
+        const videos = document.querySelectorAll('video');
+        videos.forEach(video => {
+          video.setAttribute('webkit-playsinline', '');
+          video.setAttribute('playsinline', '');
+          video.setAttribute('allow', 'picture-in-picture');
+          video.setAttribute('controls', '');
+        });
+
+        // Watch for dynamically added videos
+        const observer = new MutationObserver((mutations) => {
+          mutations.forEach((mutation) => {
+            mutation.addedNodes.forEach((node) => {
+              if (node.nodeName === 'VIDEO') {
+                node.setAttribute('webkit-playsinline', '');
+                node.setAttribute('playsinline', '');
+                node.setAttribute('allow', 'picture-in-picture');
+                node.setAttribute('controls', '');
+              }
+            });
+          });
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+      `);
+    });
   });
 
   // Update handlers

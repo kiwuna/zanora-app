@@ -1,13 +1,13 @@
 {
   "name": "zanora-movies-desktop",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Desktop wrapper for Zanora Movies",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder",
-    "build:win": "electron-builder --win",
-    "build:portable": "electron-builder --win portable"
+    "prebuild": "node scripts/cleanDist.js",
+    "build": "electron-builder --win --x64",
+    "dist": "npm run build"
   },
   "keywords": [],
   "author": "",
@@ -20,29 +20,38 @@
     "appId": "com.zanora.movies",
     "productName": "Zanora Movies",
     "directories": {
-      "output": "dist"
+      "output": "dist",
+      "buildResources": "build"
     },
     "files": [
       "main.js",
       "preload.js",
+      "loading.html",
       "zanora-logo-app.png",
+      "Assets/**/*",
       "package.json"
     ],
     "publish": {
       "provider": "github",
       "owner": "kiwuna",
-      "repo": "zanora-app"
+      "repo": "zanora-app",
+      "releaseType": "release"
     },
     "win": {
       "target": [
-        "nsis",
-        "portable"
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
       ],
       "icon": "zanora-logo-app.png"
     },
     "nsis": {
       "oneClick": false,
-      "allowToChangeInstallationDirectory": true
+      "allowToChangeInstallationDirectory": true,
+      "perMachine": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
     }
   },
   "dependencies": {
